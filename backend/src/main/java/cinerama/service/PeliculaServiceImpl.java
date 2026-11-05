@@ -64,10 +64,19 @@ public class PeliculaServiceImpl implements IPeliculaService {
 
     @Transactional
     public void deleteById(Long id) {
-        if (!peliculaRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Película", id);
-        }
+        Pelicula pelicula = peliculaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Película", id));
+        String imagen = pelicula.getImagenUrl();
+
         peliculaRepository.deleteById(id);
+
+        if (imagen != null && !imagen.isBlank()) {
+            try {
+                fileStorageService.eliminarImagen(imagen);
+            } catch (IOException ignored) {
+                // La película ya se borró: la imagen huérfana no debe romper la petición.
+            }
+        }
     }
 
     @Transactional

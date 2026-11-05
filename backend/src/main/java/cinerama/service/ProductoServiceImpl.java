@@ -56,10 +56,18 @@ public class ProductoServiceImpl implements IProductoService {
 
     @Transactional
     public void deleteById(Long id) {
-        if (!productoRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Producto", id);
-        }
+        Producto producto = findById(id);
+        String imagen = producto.getImagenUrl();
+
         productoRepository.deleteById(id);
+
+        if (imagen != null && !imagen.isBlank()) {
+            try {
+                fileStorageService.eliminarImagen(imagen);
+            } catch (IOException ignored) {
+                // El producto ya se borró: la imagen huérfana no debe romper la petición.
+            }
+        }
     }
 
     @Transactional
