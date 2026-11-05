@@ -21,8 +21,9 @@ import java.util.UUID;
 @Service
 public class FileStorageServiceImpl implements IFileStorageService {
 
-    /** Formatos que ImageIO puede leer y volver a escribir sin plugins externos. */
-    private static final Set<String> EXTENSIONES_VALIDAS = Set.of("jpg", "jpeg", "png", "gif", "bmp");
+    /** Formatos que ImageIO puede leer (WebP mediante el plugin de TwelveMonkeys). */
+    private static final Set<String> EXTENSIONES_VALIDAS =
+            Set.of("jpg", "jpeg", "png", "gif", "bmp", "webp");
 
     @Value("${cinerama.upload.dir:uploads}")
     private String uploadDir;
@@ -35,24 +36,20 @@ public class FileStorageServiceImpl implements IFileStorageService {
 
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
-            throw new BadRequestException("El archivo debe ser una imagen (JPG, PNG, GIF o BMP)");
+            throw new BadRequestException("El archivo debe ser una imagen (JPG, PNG, GIF, BMP o WebP)");
         }
 
         String extension = obtenerExtension(file.getOriginalFilename(), contentType);
         if (!EXTENSIONES_VALIDAS.contains(extension)) {
             throw new BadRequestException(
-                    "Formato de imagen no soportado (" + extension + "). Usa JPG, PNG, GIF o BMP");
+                    "Formato de imagen no soportado (" + extension + "). Usa JPG, PNG, GIF, BMP o WebP");
         }
-
-        // Siempre se guarda en un formato que ImageIO sabe escribir: PNG se mantiene,
-        // el resto se convierte a JPG (así un .bmp o un .gif dejan de romper la subida).
-        String formatoSalida = "png".equals(extension) ? "png" : "jpg";
 
         Path uploadPath = Paths.get(uploadDir, subDirectory);
         Files.createDirectories(uploadPath);
 
-        String uniqueFilename = UUID.randomUUID().toString() + "." + formatoSalida;
-        Path filePath = uploadPath.resolve(uniqueFilename);
+        Path filePath = null;
+        String uniqueFilename = null;
 
         try (var inputStream = file.getInputStream()) {
             BufferedImage originalImage = ImageIO.read(inputStream);
@@ -60,6 +57,14 @@ public class FileStorageServiceImpl implements IFileStorageService {
                 throw new BadRequestException(
                         "El archivo no es una imagen válida o su formato no está soportado");
             }
+
+            // Se guarda siempre en un formato escribible: PNG si hay transparencia,
+            // JPG en el resto (así un .webp, .gif o .bmp dejan de romper la subida).
+            boolean conTransparencia = originalImage.getColorModel().hasAlpha();
+            String formatoSalida = ("png".equals(extension) || conTransparencia) ? "png" : "jpg";
+
+            uniqueFilename = UUID.randomUUID().toString() + "." + formatoSalida;
+            filePath = uploadPath.resolve(uniqueFilename);
 
             int maxWidth = 1200;
             int maxHeight = 1200;
@@ -71,10 +76,14 @@ public class FileStorageServiceImpl implements IFileStorageService {
                 throw new BadRequestException("No se pudo procesar la imagen");
             }
         } catch (BadRequestException e) {
-            Files.deleteIfExists(filePath);
+            if (filePath != null) {
+                Files.deleteIfExists(filePath);
+            }
             throw e;
         } catch (IOException | RuntimeException e) {
-            Files.deleteIfExists(filePath);
+            if (filePath != null) {
+                Files.deleteIfExists(filePath);
+            }
             throw e;
         }
 

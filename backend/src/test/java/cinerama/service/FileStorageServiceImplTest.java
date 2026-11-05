@@ -60,22 +60,19 @@ class FileStorageServiceImplTest {
     }
 
     @Test
-    void rechazaWebpConErrorDePeticion() throws IOException {
+    void aceptaWebpYLoConvierteAUnFormatoEscribible() throws IOException {
+        // WebP real de 1x1 (lossy): ImageIO no lo lee sin el plugin de TwelveMonkeys.
+        byte[] webp = java.util.Base64.getDecoder()
+                .decode("UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA");
         MockMultipartFile file = new MockMultipartFile(
-                "file", "poster.webp", "image/webp", imagenBytes("png"));
+                "file", "poster.webp", "image/webp", webp);
 
-        assertThatThrownBy(() -> service.guardarImagen(file, "peliculas"))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessageContaining("no soportado");
+        String url = service.guardarImagen(file, "peliculas");
 
-        Path carpeta = tempDir.resolve("peliculas");
-        boolean hayArchivos = false;
-        if (Files.exists(carpeta)) {
-            try (var archivos = Files.list(carpeta)) {
-                hayArchivos = archivos.findAny().isPresent();
-            }
-        }
-        assertThat(hayArchivos).isFalse();
+        assertThat(url).matches(".*\\.(jpg|png)$");
+        Path guardado = tempDir.resolve("peliculas").resolve(url.substring(url.lastIndexOf('/') + 1));
+        assertThat(Files.exists(guardado)).isTrue();
+        assertThat(ImageIO.read(guardado.toFile())).isNotNull();
     }
 
     @Test
