@@ -1,0 +1,54 @@
+<section class="contenedor seccion">
+  <h1 class="titulo-seccion"><i class="bi bi-receipt"></i> Mis compras</h1>
+  <p class="subtitulo">Tus entradas compradas, con su código QR</p>
+
+  @if (cargando()) {
+    <div class="cargando"><span class="spinner-border spinner-border-sm"></span> Cargando tus compras…</div>
+  } @else if (error()) {
+    <div class="aviso">{{ error() }}</div>
+  } @else if (grupos().length === 0) {
+    <div class="vacio mt-4">
+      <i class="bi bi-ticket"></i>
+      Todavía no tienes compras.
+      <div class="mt-3"><a class="btn-acento" routerLink="/cartelera">Ver cartelera</a></div>
+    </div>
+  } @else {
+    <div class="lista">
+      @for (g of grupos(); track g.codigo) {
+        <article class="compra">
+          <div class="compra-cabecera">
+            <div>
+              <h3>{{ g.compras[0].tituloPelicula }}</h3>
+              <p class="tenue chico">
+                {{ g.compras[0].nombreSala }} · {{ fecha(g.compras[0].horaInicio) }}
+              </p>
+            </div>
+            <span class="pildora" [class.ok]="(g.compras[0].estado ?? '').toUpperCase() === 'COMPLETADA'"
+                  [class.neutra]="(g.compras[0].estado ?? '').toUpperCase() !== 'COMPLETADA'">
+              {{ g.compras[0].estado }}
+            </span>
+          </div>
+
+          <div class="compra-cuerpo">
+            <img [src]="qr(g.compras[0].idCompra)" [alt]="'QR ' + g.codigo" class="mini-qr">
+            <div class="detalles">
+              <div><span class="tenue chico">Butacas</span><strong>{{ g.asientos }}</strong></div>
+              <div><span class="tenue chico">Código</span><strong class="mono">{{ g.codigo }}</strong></div>
+              @if (g.compras[0].productos) {
+                <div><span class="tenue chico">Dulcería</span><strong>{{ g.compras[0].productos }}</strong></div>
+              }
+              <div><span class="tenue chico">Comprado</span><strong>{{ fecha(g.compras[0].fechaCompra) }}</strong></div>
+            </div>
+            <div class="compra-derecha">
+              <span class="tenue chico">Total</span>
+              <strong class="total">{{ soles(g.total) }}</strong>
+              <a class="btn-fantasma chico" [routerLink]="['/confirmacion', g.compras[0].idCompra]">
+                Ver entrada
+              </a>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

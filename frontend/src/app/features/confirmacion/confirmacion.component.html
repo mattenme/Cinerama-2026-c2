@@ -1,0 +1,75 @@
+@if (cargando()) {
+  <div class="contenedor seccion">
+    <div class="cargando"><span class="spinner-border spinner-border-sm"></span> Cargando tu entrada…</div>
+  </div>
+} @else if (error()) {
+  <div class="contenedor seccion">
+    <div class="aviso">{{ error() }} <a routerLink="/cartelera" class="acento">Volver a la cartelera</a></div>
+  </div>
+} @else {
+  @if (primera(); as c) {
+  <section class="contenedor seccion">
+    <div class="exito">
+      <div class="check"><i class="bi bi-check-lg"></i></div>
+      <h1>¡Compra confirmada!</h1>
+      <p class="tenue">Presenta el código QR en la entrada del cine.</p>
+    </div>
+
+    <div class="entrada">
+      <div class="entrada-izquierda">
+        <span class="etiqueta"><i class="bi bi-ticket-perforated"></i> Entrada Cinerama</span>
+        <h2>{{ c.tituloPelicula }}</h2>
+
+        <div class="datos">
+          <div>
+            <span class="tenue chico">Sala</span>
+            <strong>{{ c.nombreSala || 'Sala asignada' }}</strong>
+          </div>
+          <div>
+            <span class="tenue chico">Función</span>
+            <strong>{{ fecha(c.horaInicio) }}</strong>
+          </div>
+          <div>
+            <span class="tenue chico">Butacas</span>
+            <strong>{{ asientos().join(', ') }}</strong>
+          </div>
+          <div>
+            <span class="tenue chico">Método de pago</span>
+            <strong>{{ c.metodoPago }}</strong>
+          </div>
+          @if (c.productos) {
+            <div class="ancho-completo">
+              <span class="tenue chico">Dulcería</span>
+              <strong>{{ c.productos }}</strong>
+            </div>
+          }
+          <div class="ancho-completo">
+            <span class="tenue chico">Compra</span>
+            <strong>#{{ c.idCompra }} · {{ fecha(c.fechaCompra) }}</strong>
+          </div>
+        </div>
+
+        <div class="total-linea">
+          <span>Total pagado</span>
+          <strong>{{ soles(total()) }}</strong>
+        </div>
+      </div>
+
+      <div class="entrada-derecha">
+        <div class="qr-caja">
+          <img [src]="qr(c.idCompra)" alt="Código QR de la entrada">
+          <span class="codigo">{{ c.codigoQr }}</span>
+        </div>
+        <a class="btn-fantasma ancho" [href]="qr(c.idCompra)" target="_blank" rel="noopener">
+          <i class="bi bi-download"></i> Abrir / descargar QR
+        </a>
+      </div>
+    </div>
+
+    <div class="acciones">
+      <a class="btn-acento" routerLink="/cartelera"><i class="bi bi-film"></i> Seguir comprando</a>
+      <a class="btn-fantasma" routerLink="/mis-compras"><i class="bi bi-receipt"></i> Mis compras</a>
+    </div>
+  </section>
+  }
+}

@@ -1,0 +1,95 @@
+@if (error()) {
+  <div class="contenedor seccion">
+    <div class="aviso">
+      <i class="bi bi-exclamation-triangle"></i> {{ error() }}
+      <button class="btn-fantasma ms-3" type="button" (click)="cargar()">Reintentar</button>
+    </div>
+  </div>
+}
+
+@if (portada()) {
+  <section class="hero">
+    <div class="contenedor hero-interior">
+      <div class="hero-texto">
+        <span class="etiqueta">Ahora en cartelera</span>
+        <h1>{{ portada()!.titulo }}</h1>
+        <div class="hero-meta">
+          @if (portada()!.genero) { <span>{{ portada()!.genero }}</span> }
+          <span><i class="bi bi-clock"></i> {{ portada()!.duracionMinutos }} min</span>
+          <span class="pildora acento">Desde {{ soles(20) }}</span>
+        </div>
+        <p class="hero-sinopsis">
+          {{ portada()!.sinopsis || 'Consulta los horarios disponibles y elige tu función.' }}
+        </p>
+        <div class="hero-botones">
+          <a class="btn-acento" [routerLink]="['/pelicula', portada()!.idPelicula]">Ver horarios</a>
+          <a class="btn-fantasma" routerLink="/cartelera">Toda la cartelera</a>
+        </div>
+      </div>
+      <div class="hero-poster">
+        <div class="poster">
+          <div class="respaldo">
+            <i class="bi bi-camera-reels"></i>
+            <span>{{ portada()!.titulo }}</span>
+          </div>
+          @if (imagenPortada()) {
+            <img [src]="imagenPortada()!" [alt]="portada()!.titulo" (error)="ocultar($event)">
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+}
+
+<section class="contenedor seccion">
+  <div class="encabezado">
+    <div>
+      <h2 class="titulo-seccion">En cartelera</h2>
+      <p class="subtitulo">Elige tu película y reserva la butaca que quieras</p>
+    </div>
+    <a class="btn-fantasma" routerLink="/cartelera">Ver todas <i class="bi bi-arrow-right"></i></a>
+  </div>
+
+  @if (cargando()) {
+    <div class="cargando"><span class="spinner-border spinner-border-sm"></span> Cargando cartelera…</div>
+  } @else if (peliculas().length === 0 && !error()) {
+    <div class="vacio">
+      <i class="bi bi-film"></i>
+      Todavía no hay películas activas. Agrégalas desde Administración → Películas.
+    </div>
+  } @else {
+    <div class="grilla">
+      @for (p of peliculas().slice(0, 4); track p.idPelicula) {
+        <app-pelicula-card [pelicula]="p"></app-pelicula-card>
+      }
+    </div>
+  }
+</section>
+
+@if (promociones().length > 0) {
+  <section class="contenedor seccion">
+    <h2 class="titulo-seccion">Promociones vigentes</h2>
+    <p class="subtitulo">Usa el código en el carrito antes de pagar</p>
+    <div class="promos">
+      @for (p of promociones(); track p.idPromocion) {
+        <div class="promo">
+          <div class="promo-descuento">-{{ p.descuento }}%</div>
+          <div>
+            <strong>{{ p.codigo }}</strong>
+            <p>{{ p.descripcion || 'Descuento especial Cinerama' }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+}
+
+<section class="contenedor seccion">
+  <div class="franja">
+    <div>
+      <h2 class="titulo-seccion"><i class="bi bi-cup-straw"></i> Dulcería</h2>
+      <p class="subtitulo">Combos y snacks para acompañar la función. Agrégalos a tu compra.</p>
+    </div>
+    <a class="btn-acento" routerLink="/dulceria">Ver dulcería</a>
+  </div>
+</section>

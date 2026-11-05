@@ -1,0 +1,64 @@
+<section class="contenedor seccion">
+  <div class="encabezado">
+    <div>
+      <h1 class="titulo-seccion"><i class="bi bi-cup-straw"></i> Dulcería</h1>
+      <p class="subtitulo">Combos, canchas y bebidas para la función</p>
+    </div>
+    @if (carrito.dulceria().length > 0) {
+      <a class="btn-acento" routerLink="/carrito">
+        Ir al carrito · {{ soles(carrito.totalDulceria()) }}
+      </a>
+    }
+  </div>
+
+  @if (cargando()) {
+    <div class="cargando"><span class="spinner-border spinner-border-sm"></span> Cargando productos…</div>
+  } @else if (error()) {
+    <div class="aviso">{{ error() }}</div>
+  } @else if (productos().length === 0) {
+    <div class="vacio"><i class="bi bi-bag"></i> Aún no hay productos en la dulcería.</div>
+  } @else {
+    <div class="filtros">
+      <button class="chip" [class.activo]="categoria() === 'TODOS'" (click)="categoria.set('TODOS')">Todo</button>
+      @for (c of categorias(); track c) {
+        <button class="chip" [class.activo]="categoria() === c" (click)="categoria.set(c)">{{ c }}</button>
+      }
+    </div>
+
+    <div class="grilla">
+      @for (p of filtrados(); track p.idProducto) {
+        <article class="producto">
+          <div class="foto">
+            <div class="respaldo"><i class="bi bi-bag-heart"></i></div>
+            @if (imagen(p)) {
+              <img [src]="imagen(p)!" [alt]="p.nombre" (error)="ocultar($event)">
+            }
+            @if (p.categoria) { <span class="categoria">{{ p.categoria }}</span> }
+          </div>
+          <div class="cuerpo">
+            <h3>{{ p.nombre }}</h3>
+            <p class="desc">{{ p.descripcion || 'Producto de dulcería' }}</p>
+            <div class="pie">
+              <strong class="precio">{{ soles(p.precio) }}</strong>
+              @if (carrito.cantidadProducto(p.idProducto!) > 0) {
+                <div class="contador">
+                  <button class="btn-mini" type="button" (click)="carrito.quitarProducto(p.idProducto!)">
+                    <i class="bi bi-dash"></i>
+                  </button>
+                  <span>{{ carrito.cantidadProducto(p.idProducto!) }}</span>
+                  <button class="btn-mini" type="button" (click)="carrito.agregarProducto(p)">
+                    <i class="bi bi-plus"></i>
+                  </button>
+                </div>
+              } @else {
+                <button class="btn-acento mini" type="button" (click)="carrito.agregarProducto(p)">
+                  <i class="bi bi-plus-lg"></i> Agregar
+                </button>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

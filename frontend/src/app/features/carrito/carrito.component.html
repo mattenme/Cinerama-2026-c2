@@ -1,0 +1,194 @@
+<section class="contenedor seccion">
+  <h1 class="titulo-seccion"><i class="bi bi-ticket-perforated"></i> Mi compra</h1>
+  <p class="subtitulo">Revisa tus butacas, agrega dulcería y confirma el pago</p>
+
+  @if (carrito.totalItems() === 0) {
+    <div class="vacio mt-4">
+      <i class="bi bi-cart-x"></i>
+      Tu carrito está vacío.
+      <div class="mt-3">
+        <a class="btn-acento" routerLink="/cartelera">Ver cartelera</a>
+        <a class="btn-fantasma ms-2" routerLink="/dulceria">Ir a dulcería</a>
+      </div>
+    </div>
+  } @else {
+    <div class="disposicion">
+      <div class="columna">
+        <!-- ------------------------------------------------ butacas -->
+        <div class="panel">
+          <div class="panel-cabecera">
+            <h2 class="titulo-seccion">Butacas</h2>
+            @if (carrito.funcion(); as f) {
+              <a class="cambiar" [routerLink]="['/pelicula', carrito.pelicula()?.idPelicula]">
+                Cambiar función
+              </a>
+            }
+          </div>
+
+          @if (carrito.funcion(); as f) {
+            <div class="funcion">
+              <div class="funcion-poster">
+                <i class="bi bi-film"></i>
+              </div>
+              <div>
+                <strong>{{ f.tituloPelicula || carrito.pelicula()?.titulo }}</strong>
+                <p class="tenue chico">
+                  <i class="bi bi-building"></i> {{ f.nombreSala }}
+                  &nbsp;·&nbsp;
+                  <i class="bi bi-calendar-event"></i> {{ fecha(f.horaInicio) }}
+                </p>
+              </div>
+            </div>
+
+            <ul class="butacas-lista">
+              @for (b of carrito.asientos(); track b.idAsiento) {
+                <li>
+                  <span class="asiento"><i class="bi bi-person-workspace"></i> {{ b.fila }}{{ b.numero }}</span>
+                  <span class="tenue chico">{{ soles(carrito.precioPorButaca()) }}</span>
+                  <button class="btn-icono peligro" type="button" title="Quitar" (click)="carrito.quitarButaca(b.idAsiento)">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </li>
+              }
+            </ul>
+          } @else {
+            <div class="aviso info">
+              No has elegido función ni butacas. <a routerLink="/cartelera" class="acento">Ver cartelera</a>
+            </div>
+          }
+        </div>
+
+        <!-- ------------------------------------------------ dulcería -->
+        <div class="panel">
+          <div class="panel-cabecera">
+            <h2 class="titulo-seccion">Dulcería</h2>
+            <a class="cambiar" routerLink="/dulceria">Agregar más</a>
+          </div>
+
+          @if (carrito.dulceria().length === 0) {
+            <p class="tenue chico mb-0">Sin productos. Puedes agregar combos y snacks.</p>
+          } @else {
+            <ul class="dulceria-lista">
+              @for (item of carrito.dulceria(); track item.producto.idProducto) {
+                <li>
+                  <div class="prod">
+                    <strong>{{ item.producto.nombre }}</strong>
+                    <span class="tenue chico">{{ soles(item.producto.precio) }} c/u</span>
+                  </div>
+                  <div class="contador">
+                    <button class="btn-mini" type="button" (click)="carrito.quitarProducto(item.producto.idProducto!)">
+                      <i class="bi bi-dash"></i>
+                    </button>
+                    <span>{{ item.cantidad }}</span>
+                    <button class="btn-mini" type="button" (click)="carrito.agregarProducto(item.producto)">
+                      <i class="bi bi-plus"></i>
+                    </button>
+                  </div>
+                  <strong class="subtotal">{{ soles(item.producto.precio * item.cantidad) }}</strong>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
+        <!-- ------------------------------------------------ datos del comprador -->
+        <div class="panel">
+          <h2 class="titulo-seccion">Datos del comprador</h2>
+          @if (auth.estaLogueado()) {
+            <div class="comprador">
+              <div class="avatar"><i class="bi bi-person-fill"></i></div>
+              <div>
+                <strong>{{ auth.usuario()?.nombre }}</strong>
+                <p class="tenue chico mb-0">Cliente #{{ auth.usuario()?.clienteId }}</p>
+              </div>
+            </div>
+          } @else {
+            <div class="aviso info">
+              Necesitas iniciar sesión para completar la compra.
+              <a class="btn-acento ms-3 chico" [routerLink]="['/cuenta/login']" [queryParams]="{ returnUrl: '/carrito' }">
+                Ingresar
+              </a>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ---------------------------------------------------- resumen -->
+      <aside class="resumen">
+        <div class="panel">
+          <h2 class="titulo-seccion">Resumen</h2>
+
+          <div class="linea">
+            <span>Butacas ({{ carrito.asientos().length }} × {{ soles(carrito.precioPorButaca()) }})</span>
+            <strong>{{ soles(carrito.totalButacas()) }}</strong>
+          </div>
+          <div class="linea">
+            <span>Dulcería</span>
+            <strong>{{ soles(carrito.totalDulceria()) }}</strong>
+          </div>
+
+          @if (descuento() > 0) {
+            <div class="linea descuento">
+              <span>Descuento {{ promocion()?.codigo }}</span>
+              <strong>- {{ soles(descuento()) }}</strong>
+            </div>
+          }
+
+          <div class="promo">
+            <label class="form-label">Código de promoción</label>
+            <div class="promo-fila">
+              <input
+                class="form-control"
+                type="text"
+                placeholder="Ej: PROMO10"
+                [value]="codigo()"
+                (input)="codigo.set($any($event.target).value)">
+              @if (promocion()) {
+                <button class="btn-fantasma" type="button" (click)="quitarPromocion()">Quitar</button>
+              } @else {
+                <button class="btn-fantasma" type="button" [disabled]="buscandoPromo()" (click)="aplicarPromocion()">
+                  Aplicar
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="linea total">
+            <span>Total a pagar</span>
+            <strong>{{ soles(totalPagar()) }}</strong>
+          </div>
+
+          <label class="form-label mt-2">Método de pago</label>
+          <div class="metodos">
+            @for (m of metodos; track m.valor) {
+              <button
+                type="button"
+                class="metodo"
+                [class.activo]="metodoPago() === m.valor"
+                (click)="metodoPago.set(m.valor)">
+                <i class="bi {{ m.icono }}"></i>
+                <span>{{ m.texto }}</span>
+              </button>
+            }
+          </div>
+
+          @if (mensajeError()) {
+            <div class="aviso mt-3">{{ mensajeError() }}</div>
+          }
+
+          <button class="btn-acento ancho mt-3" type="button" [disabled]="enviando() || !carrito.tieneButacas()" (click)="pagar()">
+            @if (enviando()) {
+              <span class="spinner-border spinner-border-sm"></span> Procesando…
+            } @else {
+              <i class="bi bi-shield-check"></i> Pagar {{ soles(totalPagar()) }}
+            }
+          </button>
+
+          <p class="seguro tenue chico">
+            <i class="bi bi-lock"></i> Compra segura. Recibirás tu entrada con código QR.
+          </p>
+        </div>
+      </aside>
+    </div>
+  }
+</section>

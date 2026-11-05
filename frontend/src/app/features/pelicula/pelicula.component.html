@@ -1,0 +1,176 @@
+@if (cargando()) {
+  <div class="contenedor seccion">
+    <div class="cargando"><span class="spinner-border spinner-border-sm"></span> Cargando película…</div>
+  </div>
+} @else if (error()) {
+  <div class="contenedor seccion">
+    <div class="aviso">{{ error() }} <a routerLink="/cartelera" class="acento">Volver a la cartelera</a></div>
+  </div>
+} @else {
+  @if (pelicula(); as p) {
+  <section class="contenedor seccion">
+    <a class="volver" routerLink="/cartelera"><i class="bi bi-arrow-left"></i> Cartelera</a>
+
+    <div class="ficha">
+      <div class="ficha-poster">
+        <div class="poster">
+          <div class="respaldo">
+            <i class="bi bi-camera-reels"></i>
+            <span>{{ p.titulo }}</span>
+          </div>
+          @if (imagen()) {
+            <img [src]="imagen()!" [alt]="p.titulo" (error)="ocultar($event)">
+          }
+        </div>
+      </div>
+
+      <div class="ficha-datos">
+        <span class="etiqueta"><i class="bi bi-ticket-perforated"></i> Entradas</span>
+        <h1>{{ p.titulo }}</h1>
+        <div class="meta">
+          @if (p.genero) { <span class="pildora neutra">{{ p.genero }}</span> }
+          <span class="pildora neutra"><i class="bi bi-clock"></i> {{ p.duracionMinutos }} min</span>
+          <span class="pildora acento">Butaca {{ soles(precio()) }}</span>
+        </div>
+        <p class="sinopsis">
+          {{ p.sinopsis || 'Sin sinopsis registrada para esta película.' }}
+        </p>
+      </div>
+    </div>
+
+    <div class="reserva">
+      <div class="reserva-izquierda">
+        <h2 class="titulo-seccion"><i class="bi bi-calendar-week"></i> Elige tu función</h2>
+
+        @if (totalFunciones() === 0) {
+          <div class="vacio">
+            <i class="bi bi-calendar-x"></i>
+            No hay funciones programadas para esta película.
+            <div class="tenue mt-2">Agrégalas desde Administración → Funciones.</div>
+          </div>
+        } @else {
+          <div class="dias-tabs">
+            @for (dia of dias(); track dia.fecha; let i = $index) {
+              <button
+                type="button"
+                class="dia-tab"
+                [class.activa]="diaSeleccionado() === i"
+                (click)="elegirDia(i)">
+                {{ dia.fecha }}
+                <span>{{ dia.funciones.length }} funciones</span>
+              </button>
+            }
+          </div>
+
+          @if (diaActual(); as dia) {
+            <div class="horas">
+              @for (f of dia.funciones; track f.idFuncion) {
+                <button
+                  type="button"
+                  class="hora"
+                  [class.activa]="funcionSeleccionada()?.idFuncion === f.idFuncion"
+                  (click)="elegirFuncion(f)">
+                  <strong>{{ hora(f.horaInicio) }}</strong>
+                  <span>{{ f.nombreSala }}</span>
+                </button>
+              }
+            </div>
+          }
+        }
+
+        @if (funcionSeleccionada(); as f) {
+          <div class="sala">
+            <div class="pantalla">PANTALLA</div>
+
+            @if (cargandoSalas()) {
+              <div class="cargando"><span class="spinner-border spinner-border-sm"></span> Cargando butacas…</div>
+            } @else if (filas().length === 0) {
+              <div class="aviso info">
+                La sala <strong>{{ f.nombreSala }}</strong> todavía no tiene butacas registradas.
+              </div>
+            } @else {
+              <div class="butacas">
+                @for (fila of filas(); track fila.fila) {
+                  <div class="fila">
+                    <span class="letra">{{ fila.fila }}</span>
+                    @for (b of fila.butacas; track b.idAsiento) {
+                      <button
+                        type="button"
+                        class="butaca"
+                        [class.elegida]="butacaSeleccionada(b)"
+                        [class.ocupada]="butacaOcupada(b)"
+                        [class.bloqueada]="butacaBloqueada(b)"
+                        [disabled]="noDisponible(b)"
+                        [title]="fila.fila + b.numero + (butacaOcupada(b) ? ' (ocupada)' : '')"
+                        (click)="elegirButaca(b)">
+                        {{ b.numero }}
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+
+              <div class="leyenda">
+                <span><i class="muestra libre"></i> Libre</span>
+                <span><i class="muestra elegida"></i> Seleccionada</span>
+                <span><i class="muestra ocupada"></i> Ocupada</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <aside class="resumen">
+        <div class="panel">
+          <h3 class="titulo-seccion">Tu selección</h3>
+
+          @if (!funcionSeleccionada()) {
+            <p class="tenue">Selecciona una función para elegir tus butacas.</p>
+          } @else {
+            <div class="resumen-fila">
+              <span class="tenue">Función</span>
+              <strong>{{ hora(funcionSeleccionada()!.horaInicio) }}</strong>
+            </div>
+            <div class="resumen-fila">
+              <span class="tenue">Sala</span>
+              <strong>{{ funcionSeleccionada()!.nombreSala }}</strong>
+            </div>
+            <div class="resumen-fila">
+              <span class="tenue">Butacas</span>
+              <strong>{{ carrito.asientos().length }}</strong>
+            </div>
+
+            @if (carrito.asientos().length > 0) {
+              <div class="lista-butacas">
+                @for (b of carrito.asientos(); track b.idAsiento) {
+                  <span class="butaca-chip">
+                    {{ b.fila }}{{ b.numero }}
+                    <button type="button" (click)="carrito.quitarButaca(b.idAsiento)" title="Quitar">
+                      <i class="bi bi-x"></i>
+                    </button>
+                  </span>
+                }
+              </div>
+            } @else {
+              <p class="tenue chico">Toca las butacas que quieras comprar.</p>
+            }
+
+            <hr>
+            <div class="resumen-fila total">
+              <span>Total butacas</span>
+              <strong>{{ soles(carrito.totalButacas()) }}</strong>
+            </div>
+
+            <button class="btn-acento ancho" type="button" [disabled]="carrito.asientos().length === 0" (click)="irAlCarrito()">
+              <i class="bi bi-credit-card"></i> Continuar a pago
+            </button>
+            <a class="btn-fantasma ancho mt-2" routerLink="/dulceria">
+              <i class="bi bi-cup-straw"></i> Agregar dulcería
+            </a>
+          }
+        </div>
+      </aside>
+    </div>
+  </section>
+  }
+}
