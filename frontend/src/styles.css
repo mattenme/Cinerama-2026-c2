@@ -1,0 +1,303 @@
+/* ===================== Cinerama - estilos globales ===================== */
+
+:root {
+  --bg: #11100f;
+  --bg-2: #181716;
+  --surface: #201e1c;
+  --surface-2: #292624;
+  --linea: #393431;
+  --texto: #f2eee8;
+  --muted: #aaa39a;
+  --acento: #c43b45;
+  --acento-2: #a82d38;
+  --exito: #68a982;
+  --peligro: #d86668;
+  --butaca-libre: #34302c;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--texto);
+  min-height: 100vh;
+}
+
+app-root {
+  display: block;
+  min-height: 100vh;
+}
+
+app-main-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main { flex: 1 0 auto; }
+
+a { text-decoration: none; }
+
+/* ---------- estructura ---------- */
+.contenedor { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+
+.seccion { padding: 34px 0; }
+
+.titulo-seccion {
+  font-weight: 700;
+  letter-spacing: .1px;
+  font-size: 1.15rem;
+  margin: 0 0 4px;
+}
+
+.subtitulo { color: var(--muted); font-size: .9rem; margin: 0; }
+
+.etiqueta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--acento);
+}
+
+/* ---------- tarjetas ---------- */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--linea);
+  border-radius: 6px;
+  padding: 18px;
+}
+
+.panel-claro { background: var(--surface-2); border: 1px solid var(--linea); border-radius: 6px; padding: 16px; }
+
+/* ---------- botones ---------- */
+.btn-acento {
+  background: var(--acento);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: .1px;
+  border: 0;
+  border-radius: 4px;
+  padding: 10px 18px;
+}
+.btn-acento:hover { background: var(--acento-2); color: #fff; }
+.btn-acento:disabled { opacity: .5; }
+
+.btn-fantasma {
+  background: transparent;
+  color: var(--texto);
+  border: 1px solid var(--linea);
+  border-radius: 4px;
+  padding: 10px 16px;
+  font-weight: 600;
+}
+.btn-fantasma:hover { border-color: var(--acento); color: var(--acento); }
+
+.btn-mini {
+  border: 1px solid var(--linea);
+  background: var(--surface-2);
+  color: var(--texto);
+  border-radius: 4px;
+  width: 32px; height: 32px;
+  line-height: 1;
+  font-weight: 700;
+}
+.btn-mini:hover { border-color: var(--acento); color: var(--acento); }
+
+.btn-icono {
+  background: transparent;
+  border: 1px solid var(--linea);
+  color: var(--muted);
+  border-radius: 4px;
+  padding: 4px 9px;
+}
+.btn-icono:hover { color: var(--acento); border-color: var(--acento); }
+.btn-icono.peligro:hover { color: var(--peligro); border-color: var(--peligro); }
+
+/* ---------- formularios ---------- */
+.form-control, .form-select {
+  background: #171615;
+  border: 1px solid var(--linea);
+  color: var(--texto);
+  border-radius: 4px;
+  padding: 10px 12px;
+}
+.form-control:focus, .form-select:focus {
+  background: #171615;
+  color: var(--texto);
+  border-color: var(--acento);
+  box-shadow: 0 0 0 .15rem rgba(196, 59, 69, .16);
+}
+.form-control::placeholder { color: var(--muted); }
+.form-label { font-size: .82rem; color: var(--muted); font-weight: 600; }
+.form-select option { background: #171615; }
+.invalid-feedback { display: block; }
+
+/* ---------- posters ---------- */
+.poster {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #262321;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--linea);
+}
+.poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.poster .respaldo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  text-align: center;
+  color: var(--muted);
+}
+.poster .respaldo i { font-size: 1.8rem; color: var(--muted); opacity: .75; }
+.poster .respaldo span { font-weight: 700; color: var(--texto); font-size: .95rem; line-height: 1.2; }
+
+/* ---------- tablas ---------- */
+.tabla { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.tabla th {
+  text-align: left;
+  font-size: .72rem;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--linea);
+  white-space: nowrap;
+}
+.tabla td { padding: 10px 12px; border-bottom: 1px solid var(--linea); vertical-align: middle; }
+.tabla tbody tr:hover { background: rgba(255, 255, 255, .035); }
+
+/* ---------- píldoras ---------- */
+.pildora {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .4px;
+}
+.pildora.ok { background: rgba(104, 169, 130, .15); color: var(--exito); }
+.pildora.no { background: rgba(216, 102, 104, .15); color: var(--peligro); }
+.pildora.neutra { background: rgba(170, 163, 154, .12); color: var(--muted); }
+.pildora.acento { background: rgba(196, 59, 69, .16); color: #e8898e; }
+
+/* ---------- avisos ---------- */
+.aviso {
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: .88rem;
+  background: rgba(216, 102, 104, .12);
+  border: 1px solid rgba(216, 102, 104, .35);
+  color: #f0b5b5;
+}
+.aviso.info { background: rgba(196, 59, 69, .1); border-color: rgba(196, 59, 69, .3); color: #e9b5b7; }
+
+.cargando { color: var(--muted); display: flex; align-items: center; gap: 10px; padding: 24px 0; }
+
+.vacio {
+  text-align: center;
+  color: var(--muted);
+  padding: 40px 16px;
+  border: 1px dashed var(--linea);
+  border-radius: 6px;
+}
+.vacio i { font-size: 2rem; display: block; margin-bottom: 8px; color: var(--muted); opacity: .7; }
+
+.tenue { color: var(--muted); }
+.acento { color: var(--acento); }
+
+/* ---------- administración ---------- */
+.admin { padding: 30px 0 50px; }
+
+.admin-cabecera {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.admin-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.admin-tabs a {
+  color: var(--muted);
+  border: 1px solid var(--linea);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: .82rem;
+  font-weight: 600;
+}
+.admin-tabs a:hover { color: var(--texto); border-color: var(--acento); }
+.admin-tabs a.activo { background: var(--acento); color: #fff; border-color: var(--acento); }
+
+.modal-fondo {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 6, 12, .78);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+
+.modal-caja {
+  background: var(--surface);
+  border: 1px solid var(--linea);
+  border-radius: 6px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow: auto;
+  padding: 24px;
+}
+.modal-caja h3 { font-size: 1.15rem; font-weight: 800; margin: 0 0 18px; }
+.modal-pie { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.mini-poster {
+  width: 38px;
+  height: 52px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #262321;
+  border: 1px solid var(--linea);
+  display: inline-block;
+}
+
+.fila-acciones { display: flex; gap: 6px; justify-content: flex-end; }
+
+.tabla-scroll { overflow-x: auto; }
+.der { text-align: right; }
+.chico { font-size: .8rem; }
+.recorte { max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.checks { display: flex; gap: 18px; margin: 6px 0; font-size: .86rem; color: var(--muted); }
+.checks label { display: flex; align-items: center; gap: 7px; cursor: pointer; }
+.checks input { accent-color: var(--acento); }
+
+/* ---------- modal oscuro ---------- */
+.modal-content {
+  background: var(--surface);
+  border: 1px solid var(--linea);
+  border-radius: 6px;
+  color: var(--texto);
+}
+.modal-header, .modal-footer { border-color: var(--linea); }
+.btn-close { filter: invert(1) grayscale(1); }
