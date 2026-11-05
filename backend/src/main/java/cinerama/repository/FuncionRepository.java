@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -29,4 +30,11 @@ public interface FuncionRepository extends JpaRepository<Funcion, Long> {
 
     @Query("SELECT f FROM Funcion f JOIN FETCH f.pelicula JOIN FETCH f.sala WHERE f.idFuncion = :id")
     java.util.Optional<Funcion> findByIdWithRelations(@Param("id") Long id);
+
+    /** Funciones activas de una sala que podrían solaparse con un horario dado. */
+    @Query("SELECT f FROM Funcion f JOIN FETCH f.pelicula WHERE f.sala.idSala = :idSala "
+            + "AND f.activo = 1 AND f.horaInicio BETWEEN :desde AND :hasta")
+    List<Funcion> findActivasEnRango(@Param("idSala") Long idSala,
+                                     @Param("desde") LocalDateTime desde,
+                                     @Param("hasta") LocalDateTime hasta);
 }

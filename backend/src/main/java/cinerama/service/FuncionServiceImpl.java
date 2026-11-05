@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
 
@@ -97,6 +99,42 @@ public class FuncionServiceImpl implements IFuncionService {
                 : estado.trim().toUpperCase(Locale.ROOT));
 
         funcion.setActivo(request.activo() == null ? 1 : request.activo());
+
+        validarChoqueDeHorario(funcion);
         return funcion;
+    }
+
+    /**
+     * Impide programar dos funciones que se pisen en la misma sala, teniendo en
+     * cuenta la duración de cada película.
+     */
+    private void validarChoqueDeHorario(Funcion funcion) {
+        LocalDateTime inicio = funcion.getHoraInicio();
+        LocalDateTime fin = inicio.plusMinutes(duracionDe(funcion.getPelicula()));
+
+        List<Funcion> cercanas = funcionRepository.findActivasEnRango(
+                funcion.getSala().getIdSala(), inicio.minusHours(6), inicio.plusHours(6));
+
+        for (Funcion otra : cercanas) {
+            if (otra.getIdFuncion() != null && otra.getIdFuncion().equals(funcion.getIdFuncion())) {
+                continue;
+            }
+            LocalDateTime otraInicio = otra.getHoraInicio();
+            LocalDateTime otraFin = otraInicio.plusMinutes(duracionDe(otra.getPelicula()));
+
+            if (inicio.isBefore(otraFin) && fin.isAfter(otraInicio)) {
+                DateTimeFormatter hora = DateTimeFormatter.ofPattern("HH:mm");
+                throw new BadRequestException(String.format(
+                        "La sala %s ya tiene \"%s\" de %s a %s; elige otro horario",
+                        funcion.getSala().getNombre(),
+                        otra.getPelicula().getTitulo(),
+                        otraInicio.format(hora), otraFin.format(hora)));
+            }
+        }
+    }
+
+    private int duracionDe(Pelicula pelicula) {
+        Integer duracion = pelicula != null ? pelicula.getDuracionMinutos() : null;
+        return duracion != null && duracion > 0 ? duracion : 120;
     }
 }
