@@ -1,0 +1,20 @@
+# Build artifacts
+target/
+*.class
+
+# Dependencies
+node_modules/
+
+# Distribution directories
+dist/
+*.dist
+
+# IDE files
+.idea/
+*.lock
+
+# Environment variables
+.env
+# Archivos subidos en tiempo de ejecución
+backend/uploads/*
+!backend/uploads/.gitkeep

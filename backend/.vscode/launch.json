@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-CineramaApplication<cinerama>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "cinerama.CineramaApplication",
+            "projectName": "cinerama",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
