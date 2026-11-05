@@ -1,0 +1,103 @@
+.barra {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg);
+  border-bottom: 1px solid var(--linea);
+}
+
+.barra-interior {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  height: 64px;
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--texto);
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  font-size: 1.05rem;
+}
+.marca i { color: var(--acento); font-size: 1.25rem; }
+.marca:hover { color: var(--acento); }
+
+.navegacion {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+.navegacion a {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: .9rem;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+.navegacion a:hover { color: var(--texto); background: rgba(255, 255, 255, .04); }
+.navegacion a.activo { color: var(--acento); }
+
+.acciones { display: flex; align-items: center; gap: 14px; }
+
+.carrito {
+  position: relative;
+  color: var(--texto);
+  font-size: 1.4rem;
+  display: inline-flex;
+  align-items: center;
+}
+.carrito:hover { color: var(--acento); }
+
+.globo {
+  position: absolute;
+  top: -8px;
+  right: -12px;
+  background: var(--acento);
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 800;
+  min-width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}
+
+.usuario { display: flex; align-items: center; gap: 12px; }
+.usuario-datos { display: flex; flex-direction: column; line-height: 1.1; }
+.usuario-datos .hola { font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; }
+.usuario-datos strong { font-size: .88rem; }
+
+.chico { padding: 7px 14px; font-size: .84rem; }
+
+.hamburguesa {
+  display: none;
+  background: transparent;
+  border: 0;
+  color: var(--texto);
+  font-size: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .hamburguesa { display: block; margin-left: auto; }
+  .navegacion {
+    display: none;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    background: var(--surface);
+    border-bottom: 1px solid var(--linea);
+    padding: 12px 20px;
+  }
+  .navegacion.abierta { display: flex; }
+  .usuario-datos { display: none; }
+}

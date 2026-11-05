@@ -1,0 +1,48 @@
+<header class="barra">
+  <div class="contenedor barra-interior">
+    <a class="marca" routerLink="/home" (click)="cerrarMenu()">
+      <i class="bi bi-film"></i>
+      <span>CINERAMA</span>
+    </a>
+
+    <button class="hamburguesa" type="button" (click)="alternarMenu()" aria-label="Menú">
+      <i class="bi bi-list"></i>
+    </button>
+
+    <nav class="navegacion" [class.abierta]="menuAbierto()">
+      <a routerLink="/cartelera" routerLinkActive="activo" (click)="cerrarMenu()">Cartelera</a>
+      <a routerLink="/dulceria" routerLinkActive="activo" (click)="cerrarMenu()">Dulcería</a>
+      @if (auth.estaLogueado()) {
+        <a routerLink="/mis-compras" routerLinkActive="activo" (click)="cerrarMenu()">Mis compras</a>
+      }
+      @if (auth.esAdmin()) {
+        <a routerLink="/admin/peliculas" routerLinkActive="activo" (click)="cerrarMenu()">
+          <i class="bi bi-sliders"></i> Administración
+        </a>
+      }
+    </nav>
+
+    <div class="acciones">
+      <a class="carrito" routerLink="/carrito" (click)="cerrarMenu()" title="Mi carrito">
+        <i class="bi bi-ticket-perforated"></i>
+        @if (carrito.totalItems() > 0) {
+          <span class="globo">{{ carrito.totalItems() }}</span>
+        }
+      </a>
+
+      @if (auth.estaLogueado()) {
+        <div class="usuario">
+          <div class="usuario-datos">
+            <span class="hola">Hola,</span>
+            <strong>{{ auth.usuario()?.nombre }}</strong>
+          </div>
+          <button class="btn-fantasma chico" type="button" (click)="salir()">
+            <i class="bi bi-box-arrow-right"></i> Salir
+          </button>
+        </div>
+      } @else {
+        <a class="btn-acento chico" routerLink="/cuenta/login" (click)="cerrarMenu()">Ingresar</a>
+      }
+    </div>
+  </div>
+</header>
