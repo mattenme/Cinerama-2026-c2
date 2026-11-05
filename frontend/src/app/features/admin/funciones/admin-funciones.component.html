@@ -1,0 +1,131 @@
+<section class="contenedor admin">
+  <div class="admin-cabecera">
+    <div>
+      <h1 class="titulo-seccion"><i class="bi bi-sliders"></i> Administración</h1>
+      <p class="subtitulo">Programación de funciones</p>
+    </div>
+    <button class="btn-acento" type="button" (click)="nueva()">
+      <i class="bi bi-plus-lg"></i> Nueva función
+    </button>
+  </div>
+
+  <nav class="admin-tabs">
+    <a routerLink="/admin/peliculas">Películas</a>
+    <a routerLink="/admin/funciones" class="activo">Funciones</a>
+    <a routerLink="/admin/productos">Dulcería</a>
+    <a routerLink="/admin/promociones">Promociones</a>
+  </nav>
+
+  @if (error()) {
+    <div class="aviso">{{ error() }}</div>
+  }
+
+  <div class="panel">
+    @if (cargando()) {
+      <div class="cargando"><span class="spinner-border spinner-border-sm"></span> Cargando funciones…</div>
+    } @else if (funciones().length === 0) {
+      <div class="vacio"><i class="bi bi-calendar-x"></i> No hay funciones programadas.</div>
+    } @else {
+      <div class="tabla-scroll">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Película</th>
+              <th>Sala</th>
+              <th>Fecha y hora</th>
+              <th>Estado</th>
+              <th>Activa</th>
+              <th class="der">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (f of funciones(); track f.idFuncion) {
+              <tr [class.pasada]="pasada(f.horaInicio)">
+                <td><strong>{{ f.tituloPelicula }}</strong></td>
+                <td>{{ f.nombreSala }}</td>
+                <td>{{ fecha(f.horaInicio) }}</td>
+                <td><span class="pildora neutra">{{ f.estado }}</span></td>
+                <td>
+                  <span class="pildora" [class.ok]="f.activo === 1" [class.no]="f.activo !== 1">
+                    {{ f.activo === 1 ? 'Sí' : 'No' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="fila-acciones">
+                    <button class="btn-icono" type="button" title="Activar/desactivar" (click)="toggleActivo(f)">
+                      <i class="bi" [class.bi-toggle-on]="f.activo === 1" [class.bi-toggle-off]="f.activo !== 1"></i>
+                    </button>
+                    <button class="btn-icono" type="button" title="Editar" (click)="editar(f)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn-icono peligro" type="button" title="Eliminar" (click)="eliminar(f)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>
+
+@if (mostrarForm()) {
+  <div class="modal-fondo" (click)="cerrar()">
+    <div class="modal-caja" (click)="$event.stopPropagation()">
+      <h3>{{ editando() ? 'Editar función' : 'Nueva función' }}</h3>
+
+      <div class="grid-2">
+        <div>
+          <label class="form-label">Película *</label>
+          <select class="form-select mb-3" name="pelicula" [(ngModel)]="modelo.idPelicula">
+            <option [ngValue]="0">Selecciona…</option>
+            @for (p of peliculas(); track p.idPelicula) {
+              <option [ngValue]="p.idPelicula">{{ p.titulo }}</option>
+            }
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Sala *</label>
+          <select class="form-select mb-3" name="sala" [(ngModel)]="modelo.idSala">
+            <option [ngValue]="0">Selecciona…</option>
+            @for (s of salas(); track s.idSala) {
+              <option [ngValue]="s.idSala">{{ s.nombre }} ({{ s.capacidadTotal }} butacas)</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <label class="form-label">Fecha y hora *</label>
+      <input class="form-control mb-3" type="datetime-local" name="hora" [(ngModel)]="horaLocal">
+
+      <label class="form-label">Estado</label>
+      <select class="form-select mb-3" name="estado" [(ngModel)]="modelo.estado">
+        @for (e of estados; track e) {
+          <option [ngValue]="e">{{ e }}</option>
+        }
+      </select>
+
+      <div class="checks">
+        <label>
+          <input type="checkbox" [ngModel]="modelo.activo === 1"
+                 (ngModelChange)="modelo.activo = $event ? 1 : 0" name="activo">
+          Activa
+        </label>
+      </div>
+
+      <div class="modal-pie">
+        <button class="btn-fantasma" type="button" (click)="cerrar()">Cancelar</button>
+        <button class="btn-acento" type="button" [disabled]="guardando()" (click)="guardar()">
+          @if (guardando()) {
+            <span class="spinner-border spinner-border-sm"></span> Guardando…
+          } @else {
+            Guardar
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

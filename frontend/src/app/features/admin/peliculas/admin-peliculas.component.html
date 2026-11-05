@@ -1,0 +1,148 @@
+<section class="contenedor admin">
+  <div class="admin-cabecera">
+    <div>
+      <h1 class="titulo-seccion"><i class="bi bi-sliders"></i> Administración</h1>
+      <p class="subtitulo">Mantenimiento de películas</p>
+    </div>
+    <button class="btn-acento" type="button" (click)="nueva()">
+      <i class="bi bi-plus-lg"></i> Nueva película
+    </button>
+  </div>
+
+  <nav class="admin-tabs">
+    <a routerLink="/admin/peliculas" class="activo">Películas</a>
+    <a routerLink="/admin/funciones">Funciones</a>
+    <a routerLink="/admin/productos">Dulcería</a>
+    <a routerLink="/admin/promociones">Promociones</a>
+  </nav>
+
+  @if (error()) {
+    <div class="aviso">{{ error() }}</div>
+  }
+
+  <div class="panel">
+    @if (cargando()) {
+      <div class="cargando"><span class="spinner-border spinner-border-sm"></span> Cargando películas…</div>
+    } @else if (peliculas().length === 0) {
+      <div class="vacio"><i class="bi bi-film"></i> No hay películas registradas.</div>
+    } @else {
+      <div class="tabla-scroll">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Título</th>
+              <th>Género</th>
+              <th>Duración</th>
+              <th>Destacada</th>
+              <th>Estado</th>
+              <th class="der">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of peliculas(); track p.idPelicula) {
+              <tr>
+                <td>
+                  @if (imagen(p)) {
+                    <img class="mini-poster" [src]="imagen(p)!" [alt]="p.titulo" (error)="ocultar($event)">
+                  } @else {
+                    <span class="mini-poster sin"></span>
+                  }
+                </td>
+                <td>
+                  <strong>{{ p.titulo }}</strong>
+                  @if (p.sinopsis) { <div class="tenue chico recorte">{{ p.sinopsis }}</div> }
+                </td>
+                <td>{{ p.genero || '—' }}</td>
+                <td>{{ p.duracionMinutos }} min</td>
+                <td>
+                  <button class="btn-icono" type="button" title="Marcar/desmarcar destacada" (click)="toggleDestacado(p)">
+                    <i class="bi" [class.bi-star-fill]="p.destacado === 1" [class.bi-star]="p.destacado !== 1"
+                       [class.acento]="p.destacado === 1"></i>
+                  </button>
+                </td>
+                <td>
+                  <span class="pildora" [class.ok]="p.activo === 1" [class.no]="p.activo !== 1">
+                    {{ p.activo === 1 ? 'Activa' : 'Inactiva' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="fila-acciones">
+                    <button class="btn-icono" type="button" title="Activar/desactivar" (click)="toggleActivo(p)">
+                      <i class="bi" [class.bi-toggle-on]="p.activo === 1" [class.bi-toggle-off]="p.activo !== 1"></i>
+                    </button>
+                    <button class="btn-icono" type="button" title="Editar" (click)="editar(p)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn-icono peligro" type="button" title="Eliminar" (click)="eliminar(p)">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</section>
+
+@if (mostrarForm()) {
+  <div class="modal-fondo" (click)="cerrar()">
+    <div class="modal-caja" (click)="$event.stopPropagation()">
+      <h3>{{ editando() ? 'Editar película' : 'Nueva película' }}</h3>
+
+      <label class="form-label">Título *</label>
+      <input class="form-control mb-3" name="titulo" [(ngModel)]="modelo.titulo" maxlength="200">
+
+      <div class="grid-2">
+        <div>
+          <label class="form-label">Género</label>
+          <input class="form-control mb-3" name="genero" [(ngModel)]="modelo.genero" maxlength="100">
+        </div>
+        <div>
+          <label class="form-label">Duración (min) *</label>
+          <input class="form-control mb-3" type="number" min="1" name="duracion"
+                 [(ngModel)]="modelo.duracionMinutos">
+        </div>
+      </div>
+
+      <label class="form-label">Sinopsis</label>
+      <textarea class="form-control mb-3" rows="3" name="sinopsis" [(ngModel)]="modelo.sinopsis"></textarea>
+
+      <label class="form-label">Imagen del póster</label>
+      <input class="form-control mb-3" type="file" accept="image/*" (change)="elegirArchivo($event)">
+      @if (nombreArchivo) {
+        <div class="tenue chico mb-2"><i class="bi bi-paperclip"></i> {{ nombreArchivo }}</div>
+      }
+      @if (modelo.imagenUrl) {
+        <div class="tenue chico mb-2">Imagen actual: {{ modelo.imagenUrl }}</div>
+      }
+
+      <div class="checks">
+        <label>
+          <input type="checkbox" [ngModel]="modelo.destacado === 1"
+                 (ngModelChange)="modelo.destacado = $event ? 1 : 0" name="destacado">
+          Destacada
+        </label>
+        <label>
+          <input type="checkbox" [ngModel]="modelo.activo === 1"
+                 (ngModelChange)="modelo.activo = $event ? 1 : 0" name="activo">
+          Activa
+        </label>
+      </div>
+
+      <div class="modal-pie">
+        <button class="btn-fantasma" type="button" (click)="cerrar()">Cancelar</button>
+        <button class="btn-acento" type="button" [disabled]="guardando()" (click)="guardar()">
+          @if (guardando()) {
+            <span class="spinner-border spinner-border-sm"></span> Guardando…
+          } @else {
+            Guardar
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
